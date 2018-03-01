@@ -160,7 +160,7 @@ void ECA_SAMPLE_CONVERSION_TEST::do_run(void)
 #define S16INTFLOATINT(y) \
   { \
     SAMPLE_SPECS::sample_t mid = eca_sample_convert_s16_to_sample(y); \
-    int16_t res = eca_sample_convert_float_to_s16(mid); \
+    int16_t res = eca_sample_convert_sample_to_s16(mid); \
     if (verbose) cout << "s16 ifi " << (y) << " to " << mid << " to " << res << endl; \
     if (res != (y)) { \
       if (verbose) cout << "s16 ifi: WARNING, suspect value\n";	\
@@ -180,7 +180,7 @@ void ECA_SAMPLE_CONVERSION_TEST::do_run(void)
 #define S32INTFLOATINT(y) \
   { \
     SAMPLE_SPECS::sample_t mid = eca_sample_convert_s32_to_sample(y); \
-    int32_t res = eca_sample_convert_float_to_s32(mid); \
+    int32_t res = eca_sample_convert_sample_to_s32(mid); \
     cout << "s32 ifi " << (y) << " to " << mid << " to " << res << endl; \
     if (res != (y)) { \
       if (verbose) cout << "s32 ifi: WARNING, suspect value\n";		\
