@@ -108,7 +108,7 @@ fi
 # compile and install ecasound
 cd /tmp
 
-git clone https://github.com/andrasbari/ecasound.git ecasound
+git clone -b develop https://github.com/andrasbari/ecasound.git ecasound
 
 cd ecasound
 
