@@ -37,6 +37,12 @@ if ! [ $(id -u) = 0 ]; then
     exit 1
 fi
 
+# Ubuntu toolchain
+install_ubuntu_toolchain=$(confirm "Do you want to install Ubuntu Toolchain PPA?" "n")
+if [ "$install_ubuntu_toolchain" = "y" ]; then
+	add-apt-repository ppa:ubuntu-toolchain-r/ppa --y
+fi
+
 echo 'Update and upgrade'
 apt-get -q -y update || { echo "apt update failed"; exit 1; }
 apt-get -q -y upgrade || { echo "apt upgrade failed"; exit 1; }
@@ -44,63 +50,49 @@ apt-get -q -y autoremove || { echo "apt autoremove failed"; exit 1; }
 
 cd /tmp
 
-# Ubuntu toolchain
-#add-apt-repository ppa:ubuntu-toolchain-r/ppa --y
-#apt-get -q -y update
-
 # ecasound required packages
 apt-get -q -y install nano mc zip unzip \
     curl \
     git \
-    make cmake gcc build-essential autoconf libreadline-dev libncurses-dev \
+    make cmake gcc build-essential autoconf \
     mpg123 lame vorbis-tools faad \
-    libsndfile1-dev libsndfile1 libaudiofile1 libsamplerate-dev python liblilv-dev \
-    libjack-dev libcurl4-gnutls-dev liblo-dev gtk-doc \
+    libreadline-dev libncurses-dev libaudiofile-dev \
+    libsndfile1-dev libsndfile1 libaudiofile1 libsamplerate-dev liblilv-dev \
+    libjack-dev libcurl4-gnutls-dev liblo-dev \
     timidity mikmod \
     libtool pkg-config shtool \
     alsa alsa-base alsa-utils alsa-tools alsa-source libasound2-plugins libasound2-dev \
     ladspa-sdk \
     || { echo "failed to install required packages"; exit 1; }
 
-# mpd required packages
-apt-get -q -y install \
-    build-essential gcc g++ clang automake libtool flex bison gdb \
-    libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
-    pkg-config \
-    libmad0-dev libmpg123-dev libid3tag0-dev \
-    libflac-dev libvorbis-dev libopus-dev \
-    libadplug-dev libaudiofile-dev libsndfile1-dev libfaad-dev \
-    libfluidsynth-dev libgme-dev libmikmod2-dev libmodplug-dev \
-    libmpcdec-dev libwavpack-dev libwildmidi-dev \
-    libsidplay2-dev libsidutils-dev libresid-builder-dev \
-    libavcodec-dev libavformat-dev \
-    libmp3lame-dev libtwolame-dev libshine-dev \
-    libsamplerate0-dev libsoxr-dev \
-    libbz2-dev libcdio-paranoia-dev libiso9660-dev libmms-dev \
-    libzzip-dev \
-    libcurl4-gnutls-dev libyajl-dev libexpat-dev \
-    libasound2-dev libao-dev libjack-jackd2-dev libopenal-dev \
-    libpulse-dev libroar-dev libshout3-dev \
-    libsndio-dev \
-    libmpdclient-dev \
-    libnfs-dev libsmbclient-dev \
-    libupnp-dev \
-    libavahi-client-dev \
-    libsqlite3-dev \
-    libsystemd-dev libwrap0-dev \
-    libcppunit-dev xmlto \
-    libboost-dev \
-    libicu-dev \
-    || { echo "failed to install required packages"; exit 1; }
+install_python=$(confirm "Do you want to install python for pyecasound?" "n")
+if [ "$install_python" = "y" ]; then
+	apt-get -q -y install python \
+		|| { echo "failed to install required packages"; exit 1; }
+fi
+
+install_ruby=$(confirm "Do you want to install ruby for rubyecasound?" "n")
+if [ "$install_ruby" = "y" ]; then
+	apt-get -q -y install ruby \
+		|| { echo "failed to install required packages"; exit 1; }
+fi
 
 
+# compile libsamplerate from source (not finished)
+compile_libsamplerate=$(confirm "Do you want to compile libsamplerate?" "n")
+if [ "$compile_libsamplerate" = "y" ]; then
+	# dependencies
+	apt-get -q -y install libsndfile1 libsndfile1-dev fftw3 fftw3-dev alsa alsa-base alsa-utils alsa-tools alsa-source \
+	    || { echo "failed to install required packages"; exit 1; }
+fi
 
-# install liboil and dependecies
-complie_liboil=$(confirm "Do you want to compile liboil from source?" "n")
+
+# compile liboil from source
+complie_liboil=$(confirm "Do you want to compile liboil from source?" "y")
 if [ "$complie_liboil" = "y" ]; then
 	cd /tmp
 
-	apt-get install gtk-doc-tools
+	apt-get -q -y install gtk-doc-tools
 
 	wget https://liboil.freedesktop.org/download/liboil-0.3.17.tar.gz
 
@@ -113,26 +105,14 @@ if [ "$complie_liboil" = "y" ]; then
 fi
 
 
-# install arts and dependecies (not finished!)
-complie_arts=$(confirm "Do you want to compile arts from source?" "n")
-if [ "$complie_arts" = "y" ]; then
-	cd /tmp
-	wget http://mirror.git.trinitydesktop.org/cgit/arts/snapshot/arts-r14.0.4.tar.gz
-
-	tar xvzf /tmp/arts-r14.0.4.tar.gz
-	cd /tmp/arts-r14.0.4
-fi
-
-
-
-
-# install ecasound
+# compile and install ecasound
 cd /tmp
 
 git clone https://github.com/andrasbari/ecasound.git ecasound
 
 cd ecasound
 
+./autogen-vc.sh
 ./autogen-vc.sh
 # due to compile error, resample_secret_rabbit_code disabled
 #samplebuffer.cpp: In member function ‘void SAMPLE_BUFFER::resample_secret_rabbit_code(SAMPLE_SPECS::sample_rate_t, SAMPLE_SPECS::sample_rate_t)’:
@@ -143,6 +123,7 @@ cd ecasound
 #     params.data_out = buffer[c];
 #                     ^
 #samplebuffer.cpp: In function ‘void priv_alloc_sample_buf(SAMPLE_SPECS::sample_t**, size_t)’:
+cd /tmp/ecasound
 ./configure --disable-libsamplerate
 make -j 8
 make install
