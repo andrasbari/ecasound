@@ -59,60 +59,44 @@
  * Function definitions
  */
 
-static inline uint8_t eca_sample_convert_sample_to_u8(SAMPLE_SPECS::sample_t inval)
-{
-  const SAMPLE_SPECS::sample_t pos_limit = ((SAMPLE_SPECS::sample_t)0x7f) / 0x80;
-  if (inval >= pos_limit)
-    return UINT8_MAX;
+static inline uint8_t eca_sample_convert_sample_to_u8(SAMPLE_SPECS::sample_t inval) {
+    const SAMPLE_SPECS::sample_t pos_limit = ((SAMPLE_SPECS::sample_t)0x7f) / 0x80;
+    if (inval >= pos_limit)
+        return UINT8_MAX;
 
-  return (uint8_t)(inval * 0x80 + 0x80);
+    return (uint8_t) (inval * 0x80 + 0x80);
 }
 
-static inline int16_t eca_sample_convert_sample_to_s16(SAMPLE_SPECS::sample_t inval)
-{
-  const SAMPLE_SPECS::sample_t pos_limit = ((SAMPLE_SPECS::sample_t)0x7fff) / 0x8000;
-  if (inval >= pos_limit)
-    return INT16_MAX;
+static inline int16_t eca_sample_convert_sample_to_s16(SAMPLE_SPECS::sample_t inval) {
+    const SAMPLE_SPECS::sample_t pos_limit = ((SAMPLE_SPECS::sample_t)0x7fff) / 0x8000;
+    if (inval >= pos_limit)
+        return INT16_MAX;
 
-  return (int16_t)(inval * 0x8000);
+    return (int16_t) (inval * 0x8000);
 }
 
-static inline int32_t eca_sample_convert_sample_to_s32(SAMPLE_SPECS::sample_t inval)
-{
-  /* 32bit float precision is limited to 24bit */
-  const SAMPLE_SPECS::sample_t pos_limit_24b = ((SAMPLE_SPECS::sample_t)0x7fffff) / 0x800000;
-  if (inval >= pos_limit_24b)
-    return INT32_MAX;
+static inline int32_t eca_sample_convert_sample_to_s32(SAMPLE_SPECS::sample_t inval) {
+    const SAMPLE_SPECS::sample_t pos_limit = ((SAMPLE_SPECS::sample_t)0x7fffffff) / 0x80000000;
+    if (inval >= pos_limit)
+        return INT32_MAX;
 
-  return (int32_t)(inval * 0x80000000);
+    return (int32_t) (inval * 0x80000000);
 }
 
-static inline SAMPLE_SPECS::sample_t eca_sample_convert_u8_to_sample(uint8_t inval)
-{
-#if 0
-  /* NOTE: this is sub-optimal, but at least gcc-2.91.66 otherwise
-   *       compiles the test incorrectly) */
-  int16_t inval_b = inval;
-  if (inval_b <= INT8_MAX)
-    return(((((float)inval) - INT8_MAX) / INT8_MAX));
-#endif
-
-  return ((SAMPLE_SPECS::sample_t)(inval - 0x80)) / 0x80;
+static inline SAMPLE_SPECS::sample_t eca_sample_convert_u8_to_sample(uint8_t inval) {
+    return ((SAMPLE_SPECS::sample_t)(inval - 0x80)) / 0x80;
 }
 
-static inline SAMPLE_SPECS::sample_t eca_sample_convert_s16_to_sample(int16_t inval)
-{
-  return ((SAMPLE_SPECS::sample_t)inval) / 0x8000;
+static inline SAMPLE_SPECS::sample_t eca_sample_convert_s16_to_sample(int16_t inval) {
+    return ((SAMPLE_SPECS::sample_t)inval) / 0x8000;
 }
 
-static inline SAMPLE_SPECS::sample_t eca_sample_convert_s32_to_sample(int32_t inval)
-{
-  return ((SAMPLE_SPECS::sample_t)inval) / 0x80000000;
+static inline SAMPLE_SPECS::sample_t eca_sample_convert_s32_to_sample(int32_t inval) {
+    return ((SAMPLE_SPECS::sample_t)inval) / 0x80000000;
 }
 
-static inline SAMPLE_SPECS::sample_t eca_sample_convert_float_to_sample(float inval)
-{
-  return ((SAMPLE_SPECS::sample_t)inval);
+static inline SAMPLE_SPECS::sample_t eca_sample_convert_float_to_sample(float inval) {
+    return ((SAMPLE_SPECS::sample_t)inval);
 }
 
 #endif
